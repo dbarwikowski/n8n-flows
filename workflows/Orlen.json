@@ -1,0 +1,312 @@
+{
+  "id": 3,
+  "name": "Orlen",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "var today = new Date();\nvar year = today.getFullYear();\nvar month = today.getMonth() + 1;\nvar day = today.getDate();\n\nif(month < 10) {\n  month = \"0\" + month;\n}\n\nitems[0].json.year = year;\nitems[0].json.month = month;\nitems[0].json.day = day;\n\nreturn items;"
+      },
+      "name": "Current date",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 23,
+              "minute": 45
+            }
+          ]
+        }
+      },
+      "name": "Every 23:45",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        960,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "queryFilters": {
+          "mimeType": [
+            {
+              "mimeType": "application/vnd.google-apps.folder"
+            }
+          ],
+          "name": [
+            {
+              "operation": "is",
+              "value": "={{$json[\"year\"]}}"
+            }
+          ]
+        },
+        "options": {
+          "fields": [
+            "id"
+          ]
+        }
+      },
+      "name": "Get Year folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        960
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "useQueryString": true,
+        "queryString": "='{{$json[\"id\"]}}' in parents and name = '{{$node[\"Current date\"].json[\"month\"]}}'",
+        "options": {
+          "fields": [
+            "id"
+          ]
+        }
+      },
+      "name": "Get Month folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        960
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {
+          "format": "resolved",
+          "q": "from:(orlenpay@orlen.pl) has:attachment is:unread"
+        }
+      },
+      "name": "Orlen Invoice",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1760,
+        960
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "5",
+          "name": "dbarwikowski Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "binaryData": true,
+        "binaryPropertyName": "attachment_0",
+        "name": "=Orlen {{$binary.attachment_0.directory}}.{{$binary.attachment_0.fileExtension}}",
+        "resolveData": true,
+        "parents": [
+          "={{$node[\"Get Month folder\"].json[\"id\"]}}"
+        ],
+        "options": {}
+      },
+      "name": "Upload Invoice to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1960,
+        960
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messageLabel",
+        "operation": "remove",
+        "messageId": "={{$node[\"Orlen Invoice\"].json[\"id\"]}}",
+        "labelIds": [
+          "UNREAD"
+        ]
+      },
+      "name": "Mark as Read",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        960
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "5",
+          "name": "dbarwikowski Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex"
+      },
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        2280,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "channel": "n8n",
+        "text": "=Kapitanie!\nDodano fakturę {{$node[\"Orlen Invoice\"].binary.attachment_0.directory}} do Firma/{{$node[\"Current date\"].json[\"year\"]}}/{{$node[\"Current date\"].json[\"month\"]}}",
+        "attachments": [],
+        "otherOptions": {}
+      },
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        860,
+        540
+      ],
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "6",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Current date": {
+      "main": [
+        [
+          {
+            "node": "Get Year folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 23:45": {
+      "main": [
+        [
+          {
+            "node": "Orlen Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Year folder": {
+      "main": [
+        [
+          {
+            "node": "Get Month folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Month folder": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orlen Invoice": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Upload Invoice to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Mark as Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Upload Invoice to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Read": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-11T17:11:34.040Z",
+  "updatedAt": "2022-04-11T17:20:39.155Z",
+  "settings": {},
+  "staticData": null
+}
