@@ -303,10 +303,24 @@
           }
         ]
       ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Orlen Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2022-04-11T17:11:34.040Z",
-  "updatedAt": "2022-04-11T17:20:39.155Z",
-  "settings": {},
+  "updatedAt": "2022-04-11T21:59:45.898Z",
+  "settings": {
+    "timezone": "Europe/Warsaw",
+    "saveExecutionProgress": "DEFAULT"
+  },
   "staticData": null
 }
