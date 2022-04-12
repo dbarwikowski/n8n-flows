@@ -514,7 +514,10 @@
     }
   },
   "createdAt": "2022-04-11T16:48:50.998Z",
-  "updatedAt": "2022-04-11T17:34:21.103Z",
-  "settings": {},
+  "updatedAt": "2022-04-11T22:00:39.273Z",
+  "settings": {
+    "timezone": "Europe/Warsaw",
+    "saveExecutionProgress": "DEFAULT"
+  },
   "staticData": null
 }
