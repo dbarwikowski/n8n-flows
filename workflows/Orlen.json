@@ -120,10 +120,11 @@
       "name": "Orlen Invoice",
       "type": "n8n-nodes-base.gmail",
       "position": [
-        1760,
-        960
+        600,
+        320
       ],
       "typeVersion": 1,
+      "retryOnFail": false,
       "credentials": {
         "gmailOAuth2": {
           "id": "5",
@@ -267,6 +268,11 @@
             "node": "Merge",
             "type": "main",
             "index": 1
+          },
+          {
+            "node": "Current date",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -317,7 +323,7 @@
     }
   },
   "createdAt": "2022-04-11T17:11:34.040Z",
-  "updatedAt": "2022-04-11T21:59:45.898Z",
+  "updatedAt": "2022-04-12T10:18:50.628Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
