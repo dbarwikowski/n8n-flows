@@ -1,0 +1,46 @@
+{
+  "id": 12,
+  "name": "[Callee] Passing data between workflows",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        920,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const items = [];\nitems[0] = {};\n//var today = new Date($node[\"Globals\"].json[\"email\"][\"date\"]);\nvar today = new Date();\nvar year = today.getFullYear();\nvar month = today.getMonth() + 1;\nvar day = today.getDate();\n\nif(month < 10) {\n  month = \"0\" + month;\n}\n\nreturn items[0].dateReversed = day + '/' + month + '/' + year;"
+      },
+      "name": "Current date",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        860
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Current date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-13T09:47:55.145Z",
+  "updatedAt": "2022-04-13T11:25:01.198Z",
+  "settings": {},
+  "staticData": null
+}
