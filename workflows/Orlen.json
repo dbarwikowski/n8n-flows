@@ -9,20 +9,8 @@
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
       "position": [
-        240,
+        480,
         300
-      ]
-    },
-    {
-      "parameters": {
-        "functionCode": "var today = new Date();\nvar year = today.getFullYear();\nvar month = today.getMonth() + 1;\nvar day = today.getDate();\n\nif(month < 10) {\n  month = \"0\" + month;\n}\n\nitems[0].json.year = year;\nitems[0].json.month = month;\nitems[0].json.day = day;\n\nreturn items;"
-      },
-      "name": "Current date",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-        1160,
-        960
       ]
     },
     {
@@ -40,72 +28,9 @@
       "type": "n8n-nodes-base.cron",
       "typeVersion": 1,
       "position": [
-        960,
-        960
+        480,
+        460
       ]
-    },
-    {
-      "parameters": {
-        "authentication": "oAuth2",
-        "operation": "list",
-        "queryFilters": {
-          "mimeType": [
-            {
-              "mimeType": "application/vnd.google-apps.folder"
-            }
-          ],
-          "name": [
-            {
-              "operation": "is",
-              "value": "={{$json[\"year\"]}}"
-            }
-          ]
-        },
-        "options": {
-          "fields": [
-            "id"
-          ]
-        }
-      },
-      "name": "Get Year folder",
-      "type": "n8n-nodes-base.googleDrive",
-      "typeVersion": 1,
-      "position": [
-        1360,
-        960
-      ],
-      "credentials": {
-        "googleDriveOAuth2Api": {
-          "id": "7",
-          "name": "Google Drive account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "authentication": "oAuth2",
-        "operation": "list",
-        "useQueryString": true,
-        "queryString": "='{{$json[\"id\"]}}' in parents and name = '{{$node[\"Current date\"].json[\"month\"]}}'",
-        "options": {
-          "fields": [
-            "id"
-          ]
-        }
-      },
-      "name": "Get Month folder",
-      "type": "n8n-nodes-base.googleDrive",
-      "typeVersion": 1,
-      "position": [
-        1560,
-        960
-      ],
-      "credentials": {
-        "googleDriveOAuth2Api": {
-          "id": "7",
-          "name": "Google Drive account"
-        }
-      }
     },
     {
       "parameters": {
@@ -120,8 +45,8 @@
       "name": "Orlen Invoice",
       "type": "n8n-nodes-base.gmail",
       "position": [
-        600,
-        320
+        660,
+        300
       ],
       "typeVersion": 1,
       "retryOnFail": false,
@@ -147,8 +72,8 @@
       "name": "Upload Invoice to Google Drive",
       "type": "n8n-nodes-base.googleDrive",
       "position": [
-        1960,
-        960
+        1280,
+        280
       ],
       "typeVersion": 1,
       "credentials": {
@@ -171,8 +96,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 1,
       "position": [
-        2160,
-        960
+        1460,
+        280
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -189,15 +114,15 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 1,
       "position": [
-        2280,
-        960
+        1100,
+        280
       ]
     },
     {
       "parameters": {
         "authentication": "oAuth2",
         "channel": "n8n",
-        "text": "=Kapitanie!\nDodano fakturę {{$node[\"Orlen Invoice\"].binary.attachment_0.directory}} do Firma/{{$node[\"Current date\"].json[\"year\"]}}/{{$node[\"Current date\"].json[\"month\"]}}",
+        "text": "=Kapitanie!\nDodano fakturę Orlen {{$node[\"Orlen Invoice\"].binary.attachment_0.directory}} do Firma/{{$node[\"Current date\"].json[\"year\"]}}/{{$node[\"Current date\"].json[\"month\"]}}",
         "attachments": [],
         "otherOptions": {}
       },
@@ -205,8 +130,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 1,
       "position": [
-        860,
-        540
+        1640,
+        280
       ],
       "credentials": {
         "slackOAuth2Api": {
@@ -214,47 +139,26 @@
           "name": "Slack account"
         }
       }
+    },
+    {
+      "parameters": {
+        "workflowId": "6"
+      },
+      "name": "Get Current Invoice Folder Id",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        880,
+        200
+      ]
     }
   ],
   "connections": {
-    "Current date": {
-      "main": [
-        [
-          {
-            "node": "Get Year folder",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Every 23:45": {
       "main": [
         [
           {
             "node": "Orlen Invoice",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get Year folder": {
-      "main": [
-        [
-          {
-            "node": "Get Month folder",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get Month folder": {
-      "main": [
-        [
-          {
-            "node": "Merge",
             "type": "main",
             "index": 0
           }
@@ -270,7 +174,7 @@
             "index": 1
           },
           {
-            "node": "Current date",
+            "node": "Get Current Invoice Folder Id",
             "type": "main",
             "index": 0
           }
@@ -320,10 +224,21 @@
           }
         ]
       ]
+    },
+    "Get Current Invoice Folder Id": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2022-04-11T17:11:34.040Z",
-  "updatedAt": "2022-04-12T10:18:50.628Z",
+  "updatedAt": "2022-04-13T09:40:09.860Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
