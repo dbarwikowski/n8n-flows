@@ -1,0 +1,180 @@
+{
+  "id": 15,
+  "name": "Download playlist",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        260,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "command": "cd ~/.youtube-downloads/downloading\nyoutube-dl --download-archive download.archive --extract-audio --audio-format mp3 https://www.youtube.com/playlist?list=PLp07AR1a3xiiTj2a77tKC1QJbiEoxOwt6"
+      },
+      "name": "Download playlist",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "cd ~/.youtube-downloads/downloading\nls -1 *.mp3"
+      },
+      "name": "List .youtube-downloads",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const newItems = [];\nfor (file of items[0].json.stdout.split('\\n')) {\n  newItems.push({\n    json: {\n      filename: file,\n      fullpath: '/home/dbarwikowski/.youtube-downloads/downloading/' + file\n    }\n  });\n}\nreturn newItems;"
+      },
+      "name": "Parse stdout",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        800,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "1 at a time",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "mv ~/.youtube-downloads/downloading/*.mp3 ~/.youtube-downloads"
+      },
+      "name": "Execute Command",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyHour",
+              "minute": 30
+            }
+          ]
+        }
+      },
+      "name": "Every xx:30",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        260,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Download playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List .youtube-downloads": {
+      "main": [
+        [
+          {
+            "node": "Parse stdout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse stdout": {
+      "main": [
+        [
+          {
+            "node": "1 at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download playlist": {
+      "main": [
+        [
+          {
+            "node": "List .youtube-downloads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1 at a time": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every xx:30": {
+      "main": [
+        [
+          {
+            "node": "Download playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "1 at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-14T11:54:28.824Z",
+  "updatedAt": "2022-04-14T12:24:46.305Z",
+  "settings": {},
+  "staticData": null
+}
