@@ -1,0 +1,165 @@
+{
+  "id": 15,
+  "name": "Download playlist J",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        260,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=cd ~/.youtube-downloads/Justyna\nyoutube-dl --download-archive download.archive --extract-audio --audio-format mp3 https://www.youtube.com/playlist?list=PLUYLK1kUXFR2o_wIxWXBQpO_h3-zTp8n5"
+      },
+      "name": "Download playlist",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "command": "=mv ~/.youtube-downloads/Justyna/*.mp3 ~/.youtube-downloads/Justyna/downloaded"
+      },
+      "name": "Execute Command",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 6
+            }
+          ]
+        }
+      },
+      "name": "Every 6h",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        260,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "settings_googleDriveParent",
+              "value": "1MgqXWW4sHGknnb_a5o5SE_0BwQ32fTQ6"
+            },
+            {
+              "name": "settings_localFolder",
+              "value": "/home/dbarwikowski/.youtube-downloads/Justyna/downloaded"
+            }
+          ],
+          "boolean": [
+            {
+              "name": "settings_removeAfterUpload",
+              "value": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        800,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "19"
+      },
+      "name": "Upload music to Google Drive",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        980,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Download playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download playlist": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 6h": {
+      "main": [
+        [
+          {
+            "node": "Download playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Upload music to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-14T11:54:28.824Z",
+  "updatedAt": "2022-04-20T21:42:48.004Z",
+  "settings": {},
+  "staticData": null
+}
