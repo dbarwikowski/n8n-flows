@@ -102,7 +102,7 @@
       "credentials": {
         "githubOAuth2Api": {
           "id": "1",
-          "name": "dbarwikowski Github account"
+          "name": "D Github account"
         }
       }
     },
@@ -126,7 +126,7 @@
       "credentials": {
         "githubOAuth2Api": {
           "id": "1",
-          "name": "dbarwikowski Github account"
+          "name": "D Github account"
         }
       }
     },
@@ -270,7 +270,7 @@
       "credentials": {
         "githubOAuth2Api": {
           "id": "1",
-          "name": "dbarwikowski Github account"
+          "name": "D Github account"
         }
       },
       "continueOnFail": true
@@ -514,7 +514,7 @@
     }
   },
   "createdAt": "2022-04-11T16:48:50.998Z",
-  "updatedAt": "2022-04-11T22:00:39.273Z",
+  "updatedAt": "2022-04-20T20:55:51.683Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
