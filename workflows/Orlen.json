@@ -1,7 +1,7 @@
 {
   "id": 3,
   "name": "Orlen",
-  "active": true,
+  "active": false,
   "nodes": [
     {
       "parameters": {},
@@ -9,27 +9,8 @@
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
       "position": [
-        480,
+        600,
         300
-      ]
-    },
-    {
-      "parameters": {
-        "triggerTimes": {
-          "item": [
-            {
-              "hour": 23,
-              "minute": 45
-            }
-          ]
-        }
-      },
-      "name": "Every 23:45",
-      "type": "n8n-nodes-base.cron",
-      "typeVersion": 1,
-      "position": [
-        480,
-        460
       ]
     },
     {
@@ -45,7 +26,7 @@
       "name": "Orlen Invoice",
       "type": "n8n-nodes-base.gmail",
       "position": [
-        660,
+        780,
         300
       ],
       "typeVersion": 1,
@@ -53,7 +34,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "5",
-          "name": "dbarwikowski Gmail account"
+          "name": "D Gmail account"
         }
       }
     },
@@ -65,14 +46,14 @@
         "name": "=Orlen {{$binary.attachment_0.directory}}.{{$binary.attachment_0.fileExtension}}",
         "resolveData": true,
         "parents": [
-          "={{$node[\"Get Month folder\"].json[\"id\"]}}"
+          "={{ $json.folderId }}"
         ],
         "options": {}
       },
       "name": "Upload Invoice to Google Drive",
       "type": "n8n-nodes-base.googleDrive",
       "position": [
-        1280,
+        1500,
         280
       ],
       "typeVersion": 1,
@@ -96,13 +77,13 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 1,
       "position": [
-        1460,
+        1680,
         280
       ],
       "credentials": {
         "gmailOAuth2": {
           "id": "5",
-          "name": "dbarwikowski Gmail account"
+          "name": "D Gmail account"
         }
       }
     },
@@ -114,7 +95,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 1,
       "position": [
-        1100,
+        1320,
         280
       ]
     },
@@ -122,7 +103,7 @@
       "parameters": {
         "authentication": "oAuth2",
         "channel": "n8n",
-        "text": "=Kapitanie!\nDodano fakturę Orlen {{$node[\"Orlen Invoice\"].binary.attachment_0.directory}} do Firma/{{$node[\"Current date\"].json[\"year\"]}}/{{$node[\"Current date\"].json[\"month\"]}}",
+        "text": "=Kapitanie!\nDodano Orlen {{$node[\"Orlen Invoice\"].binary.attachment_0.directory}} do Dysku Google",
         "attachments": [],
         "otherOptions": {}
       },
@@ -130,13 +111,13 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 1,
       "position": [
-        1640,
+        1860,
         280
       ],
       "credentials": {
         "slackOAuth2Api": {
           "id": "6",
-          "name": "Slack account"
+          "name": "n8n Slack account"
         }
       }
     },
@@ -148,23 +129,170 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        880,
+        680,
+        0
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "date",
+              "value": "={{$json[\"date\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        960,
         200
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 6
+            }
+          ]
+        }
+      },
+      "name": "Every 6h",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        600,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const newItems = [];\n\nconst parseDate = (dateRaw) => {\n  var date = new Date(dateRaw);\n  var year = date.getFullYear();\n  var month = date.getMonth() + 1;\n  var day = date.getDate();\n\n  if(month < 10) {\n    month = \"0\" + month;\n  }\n\n  return {\n    year: year,\n    month: month,\n    day: day,\n  };\n};\n\nfor (item of items) {\n  newItems.push({\n    json: parseDate(item.json.date)\n  });\n}\n\nreturn newItems;"
+      },
+      "name": "Current date",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "queryFilters": {
+          "mimeType": [
+            {
+              "mimeType": "application/vnd.google-apps.folder"
+            }
+          ],
+          "name": [
+            {
+              "operation": "is",
+              "value": "={{$json[\"year\"]}}"
+            }
+          ]
+        },
+        "options": {
+          "fields": [
+            "id"
+          ]
+        }
+      },
+      "name": "Get Year folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "useQueryString": true,
+        "queryString": "='{{$json[\"id\"]}}' in parents and name = '{{$node[\"Current date\"].json[\"month\"]}}'",
+        "options": {
+          "fields": [
+            "id"
+          ]
+        }
+      },
+      "name": "Get Month folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "folderId",
+              "value": "={{$json[\"id\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1820,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "date",
+              "value": "={{ $json.date || new Date() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Settings1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        0
       ]
     }
   ],
   "connections": {
-    "Every 23:45": {
-      "main": [
-        [
-          {
-            "node": "Orlen Invoice",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Orlen Invoice": {
       "main": [
         [
@@ -174,7 +302,7 @@
             "index": 1
           },
           {
-            "node": "Get Current Invoice Folder Id",
+            "node": "Settings",
             "type": "main",
             "index": 0
           }
@@ -225,7 +353,73 @@
         ]
       ]
     },
-    "Get Current Invoice Folder Id": {
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Settings1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 6h": {
+      "main": [
+        [
+          {
+            "node": "Orlen Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Current date": {
+      "main": [
+        [
+          {
+            "node": "Get Year folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Year folder": {
+      "main": [
+        [
+          {
+            "node": "Get Month folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Month folder": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings1": {
+      "main": [
+        [
+          {
+            "node": "Current date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output": {
       "main": [
         [
           {
@@ -238,7 +432,7 @@
     }
   },
   "createdAt": "2022-04-11T17:11:34.040Z",
-  "updatedAt": "2022-04-13T09:40:09.860Z",
+  "updatedAt": "2022-04-20T13:30:53.670Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
