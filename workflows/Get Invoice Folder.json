@@ -1,0 +1,195 @@
+{
+  "id": 6,
+  "name": "Get Invoice Folder",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        740,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "var date = new Date($json.date);\nvar year = date.getFullYear();\nvar month = date.getMonth() + 1;\nvar day = date.getDate();\n\nif(month < 10) {\n  month = \"0\" + month;\n}\n\nreturn [{\n    year: year,\n    month: month,\n    day: day\n  }];"
+      },
+      "name": "Current date",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "queryFilters": {
+          "mimeType": [
+            {
+              "mimeType": "application/vnd.google-apps.folder"
+            }
+          ],
+          "name": [
+            {
+              "operation": "is",
+              "value": "={{$json[\"year\"]}}"
+            }
+          ]
+        },
+        "options": {
+          "fields": [
+            "id"
+          ]
+        }
+      },
+      "name": "Get Year folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        860
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7",
+          "name": "D Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "useQueryString": true,
+        "queryString": "='{{$json[\"id\"]}}' in parents and name = '{{$node[\"Current date\"].json[\"month\"]}}'",
+        "options": {
+          "fields": [
+            "id"
+          ]
+        }
+      },
+      "name": "Get Month folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        860
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7",
+          "name": "D Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "date",
+              "value": "={{ $json.date || new Date() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        920,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "folderId",
+              "value": "={{$json[\"id\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        860
+      ]
+    }
+  ],
+  "connections": {
+    "Current date": {
+      "main": [
+        [
+          {
+            "node": "Get Year folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Year folder": {
+      "main": [
+        [
+          {
+            "node": "Get Month folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Current date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Month folder": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-12T10:44:13.028Z",
+  "updatedAt": "2022-04-20T15:03:56.776Z",
+  "settings": {},
+  "staticData": null
+}
