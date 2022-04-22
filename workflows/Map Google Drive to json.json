@@ -129,7 +129,7 @@
     },
     {
       "parameters": {
-        "functionCode": "for(i of $node['Put all items into array'].json.arr) {\n  item.push(i)\n}\n\nreturn item;"
+        "functionCode": "var newItem = {...item, ...$node['Put all items into array'].json}\n\nreturn newItem;"
       },
       "name": "FunctionItem",
       "type": "n8n-nodes-base.functionItem",
@@ -186,7 +186,7 @@
     },
     {
       "parameters": {
-        "functionCode": "return $node['Put all items into array'].json.arr;"
+        "functionCode": "var itemsRaw = Object.entries($node['Put all items into array'].json);\r\nconst newItems = [];\r\n\r\nfor(i of itemsRaw){\r\n  var newObject = {};\r\n  newObject[i[0]] = i[1];\r\n  newItems.push(newObject);\r\n}\r\n\r\nreturn newItems;"
       },
       "name": "Function2",
       "type": "n8n-nodes-base.function",
@@ -210,7 +210,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const newItems = [{arr: []}];\n\nfor (item of items) {\n  newItems[0].arr.push({\n    id: item.json.id, \n    path: item.json.path\n  });\n}\n\nreturn newItems;"
+        "functionCode": "const newItems = [{}];\n\nfor (item of items) {\n  newItems[0][item.json.path] = item.json.id;\n  // newItems[0].arr.push({\n  //   id: item.json.id, \n  //   path: item.json.path\n  // });\n}\n\nreturn newItems;"
       },
       "name": "Put all items into array",
       "type": "n8n-nodes-base.function",
@@ -227,11 +227,11 @@
           "string": [
             {
               "name": "id",
-              "value": "={{ $json.id }}"
+              "value": "={{ Object.values($json)[0] }}"
             },
             {
               "name": "path",
-              "value": "={{ $json.path }}"
+              "value": "={{ Object.keys($json)[0] }}"
             }
           ]
         },
@@ -432,7 +432,7 @@
     }
   },
   "createdAt": "2022-04-20T13:33:32.922Z",
-  "updatedAt": "2022-04-20T19:08:13.224Z",
+  "updatedAt": "2022-04-21T16:55:15.907Z",
   "settings": {},
   "staticData": null
 }
