@@ -1,7 +1,7 @@
 {
   "id": 4,
   "name": "UPC",
-  "active": false,
+  "active": true,
   "nodes": [
     {
       "parameters": {},
@@ -35,69 +35,8 @@
     {
       "parameters": {
         "authentication": "oAuth2",
-        "binaryData": true,
-        "binaryPropertyName": "attachment_0",
-        "name": "=UPC {{$binary.attachment_0.directory}}.{{$binary.attachment_0.fileExtension}}",
-        "resolveData": true,
-        "parents": [
-          "={{$node[\"Get Month folder\"].json[\"id\"]}}"
-        ],
-        "options": {}
-      },
-      "name": "Upload Invoice to Google Drive",
-      "type": "n8n-nodes-base.googleDrive",
-      "position": [
-        1020,
-        280
-      ],
-      "typeVersion": 1,
-      "credentials": {
-        "googleDriveOAuth2Api": {
-          "id": "7",
-          "name": "Google Drive account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "resource": "messageLabel",
-        "operation": "remove",
-        "messageId": "={{$node[\"UPC Invoice\"].json[\"id\"]}}",
-        "labelIds": [
-          "UNREAD"
-        ]
-      },
-      "name": "Mark as Read",
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 1,
-      "position": [
-        1200,
-        280
-      ],
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "5",
-          "name": "dbarwikowski Gmail account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "mode": "mergeByIndex"
-      },
-      "name": "Merge",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 1,
-      "position": [
-        840,
-        280
-      ]
-    },
-    {
-      "parameters": {
-        "authentication": "oAuth2",
         "channel": "n8n",
-        "text": "=Kapitanie!\nDodano fakturę {{$node[\"UPC Invoice\"].binary.attachment_0.fileName}} do Firma/{{$node[\"Current date\"].json[\"year\"]}}/{{$node[\"Current date\"].json[\"month\"]}}\nLink do płatności: {{$node[\"HTML Extract\"].json[\"paymentUrl\"]}}",
+        "text": "=Kapitanie!\nDodano fakturę UPC {{$node[\"UPC Invoice\"].binary.attachment_0.fileName}} do Firma/{{$node[\"Current date\"].json[\"year\"]}}/{{$node[\"Current date\"].json[\"month\"]}}\nLink do płatności: {{$node[\"HTML Extract\"].json[\"paymentUrl\"]}}",
         "attachments": [],
         "otherOptions": {}
       },
@@ -105,13 +44,13 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 1,
       "position": [
-        1560,
+        1880,
         400
       ],
       "credentials": {
         "slackOAuth2Api": {
           "id": "6",
-          "name": "Slack account"
+          "name": "n8n Slack account"
         }
       }
     },
@@ -135,7 +74,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "5",
-          "name": "dbarwikowski Gmail account"
+          "name": "D Gmail account"
         }
       }
     },
@@ -172,19 +111,113 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 1,
       "position": [
-        1380,
+        1700,
         400
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "binaryData": true,
+        "binaryPropertyName": "attachment_0",
+        "name": "=UPC {{$binary.attachment_0.fileName}}",
+        "resolveData": true,
+        "parents": [
+          "={{ $json.folderId }}"
+        ],
+        "options": {}
+      },
+      "name": "Upload Invoice to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1340,
+        280
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7",
+          "name": "D Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messageLabel",
+        "operation": "remove",
+        "messageId": "={{$node[\"UPC Invoice\"].json[\"id\"]}}",
+        "labelIds": [
+          "UNREAD"
+        ]
+      },
+      "name": "Mark as Read",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        280
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "5",
+          "name": "D Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex"
+      },
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "path",
+              "value": "={{ '/Firma/' + $json.year + '/' + $json.month + '/' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        800,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const newItems = [];\n\nconst parseDate = (dateRaw) => {\n  var date = new Date(dateRaw);\n  var year = date.getFullYear();\n  var month = date.getMonth() + 1;\n  var day = date.getDate();\n\n  if(month < 10) {\n    month = \"0\" + month;\n  }\n\n  return {\n    year: year,\n    month: month,\n    day: day,\n  };\n};\n\nfor (item of items) {\n  newItems.push({\n    json: parseDate(item.json.date)\n  });\n}\n\nreturn newItems;"
+      },
+      "name": "Current date",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        620,
+        180
       ]
     },
     {
       "parameters": {
         "workflowId": "6"
       },
-      "name": "Get Current Invoice Folder Id",
+      "name": "Get GDrive FolderId by Path",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        620,
+        980,
         180
       ]
     }
@@ -195,39 +228,6 @@
         [
           {
             "node": "UPC Invoice",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Upload Invoice to Google Drive": {
-      "main": [
-        [
-          {
-            "node": "Mark as Read",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge": {
-      "main": [
-        [
-          {
-            "node": "Upload Invoice to Google Drive",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Mark as Read": {
-      "main": [
-        [
-          {
-            "node": "Merge1",
             "type": "main",
             "index": 0
           }
@@ -249,19 +249,19 @@
       "main": [
         [
           {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
-          },
-          {
             "node": "HTML Extract",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Get Current Invoice Folder Id",
+            "node": "Current date",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
           }
         ]
       ]
@@ -288,7 +288,62 @@
         ]
       ]
     },
-    "Get Current Invoice Folder Id": {
+    "Upload Invoice to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Mark as Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Read": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Upload Invoice to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Get GDrive FolderId by Path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Current date": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get GDrive FolderId by Path": {
       "main": [
         [
           {
@@ -301,7 +356,7 @@
     }
   },
   "createdAt": "2022-04-11T17:40:04.328Z",
-  "updatedAt": "2022-04-20T20:55:31.884Z",
+  "updatedAt": "2022-04-21T17:35:02.772Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
