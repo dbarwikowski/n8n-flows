@@ -19,18 +19,18 @@
         "values": {
           "string": [
             {
-              "name": "settings.googleDriveParent",
-              "value": "={{ $json['settings.googleDriveParent'] }}"
+              "name": "settings_googleDriveParent",
+              "value": "={{ $json['settings_googleDriveParent'] }}"
             },
             {
-              "name": "settings.localFolder",
-              "value": "={{ $json['settings.localFolder'] }}"
+              "name": "settings_localFolder",
+              "value": "={{ $json['settings_localFolder'] }}"
             }
           ],
           "boolean": [
             {
-              "name": "settings.removeAfterUpload",
-              "value": "={{ $json['settings.removeAfterUpload'] || false}}"
+              "name": "settings_removeAfterUpload",
+              "value": "={{ $json['settings_removeAfterUpload'] || false}}"
             }
           ]
         },
@@ -224,7 +224,7 @@
     }
   },
   "createdAt": "2022-04-14T10:55:37.007Z",
-  "updatedAt": "2022-04-20T21:19:01.229Z",
+  "updatedAt": "2022-04-21T18:17:59.609Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
