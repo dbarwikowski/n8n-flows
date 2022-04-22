@@ -1,0 +1,272 @@
+{
+  "id": 18,
+  "name": "Download YouTube playlist",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        520,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{$json.directory}}\nyoutube-dl --download-archive download.archive --extract-audio --audio-format mp3 {{$json.playlistURL}}\nmv {{$json.directory}}/*.mp3 {{$json.directory}}/downloaded"
+      },
+      "name": "Download playlist",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 7
+            }
+          ]
+        }
+      },
+      "name": "Every 6h",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "settings_googleDriveParent",
+              "value": "={{$node.SplitInBatches.json.googleDriveFolderId}}"
+            },
+            {
+              "name": "settings_localFolder",
+              "value": "={{$node.SplitInBatches.json.directory}}/downloaded"
+            },
+            {
+              "name": "user",
+              "value": "={{$node.SplitInBatches.json.user}}"
+            }
+          ],
+          "boolean": [
+            {
+              "name": "settings_removeAfterUpload",
+              "value": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const items = [\n  {\n    user: 'Daniel',\n    directory: '/home/dbarwikowski/.youtube-downloads/Daniel',\n    playlistURL: 'https://www.youtube.com/playlist?list=PLp07AR1a3xiiTj2a77tKC1QJbiEoxOwt6',\n    googleDriveFolderId: '148Mylq0UZAZ2dRMfnjEJKz1OD4xGK7L7'\n  },\n  {\n    user: 'Justyna',\n    directory: '/home/dbarwikowski/.youtube-downloads/Justyna',\n    playlistURL: 'https://www.youtube.com/playlist?list=PLUYLK1kUXFR2o_wIxWXBQpO_h3-zTp8n5',\n    googleDriveFolderId: '1MgqXWW4sHGknnb_a5o5SE_0BwQ32fTQ6'\n  }\n];\n\nreturn items;"
+      },
+      "name": "Function",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        700,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.user}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "Daniel"
+            },
+            {
+              "value2": "Justyna",
+              "output": 1
+            }
+          ]
+        }
+      },
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "13"
+      },
+      "name": "Upload music to Google Drive D",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1620,
+        280
+      ],
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "workflowId": "19"
+      },
+      "name": "Upload music to Google Drive J",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1620,
+        460
+      ],
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download playlist": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 6h": {
+      "main": [
+        [
+          {
+            "node": "Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "Download playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Upload music to Google Drive D",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload music to Google Drive J",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload music to Google Drive D": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload music to Google Drive J": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-20T21:11:36.981Z",
+  "updatedAt": "2022-04-21T18:19:45.046Z",
+  "settings": {},
+  "staticData": null
+}
