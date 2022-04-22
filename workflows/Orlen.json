@@ -1,7 +1,7 @@
 {
   "id": 3,
   "name": "Orlen",
-  "active": false,
+  "active": true,
   "nodes": [
     {
       "parameters": {},
@@ -9,7 +9,7 @@
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
       "position": [
-        600,
+        420,
         300
       ]
     },
@@ -26,7 +26,7 @@
       "name": "Orlen Invoice",
       "type": "n8n-nodes-base.gmail",
       "position": [
-        780,
+        600,
         300
       ],
       "typeVersion": 1,
@@ -60,7 +60,7 @@
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "7",
-          "name": "Google Drive account"
+          "name": "D Google Drive"
         }
       }
     },
@@ -103,7 +103,7 @@
       "parameters": {
         "authentication": "oAuth2",
         "channel": "n8n",
-        "text": "=Kapitanie!\nDodano Orlen {{$node[\"Orlen Invoice\"].binary.attachment_0.directory}} do Dysku Google",
+        "text": "=Kapitanie!\nDodano fakturę Orlen {{$node[\"Orlen Invoice\"].binary.attachment_0.directory}} do Firma/{{$node[\"Current date\"].json[\"year\"]}}/{{$node[\"Current date\"].json[\"month\"]}}",
         "attachments": [],
         "otherOptions": {}
       },
@@ -123,25 +123,12 @@
     },
     {
       "parameters": {
-        "workflowId": "6"
-      },
-      "name": "Get Current Invoice Folder Id",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1,
-      "position": [
-        680,
-        0
-      ],
-      "disabled": true
-    },
-    {
-      "parameters": {
         "keepOnlySet": true,
         "values": {
           "string": [
             {
-              "name": "date",
-              "value": "={{$json[\"date\"]}}"
+              "name": "path",
+              "value": "={{ '/Firma/' + $json.year + '/' + $json.month + '/' }}"
             }
           ]
         },
@@ -152,7 +139,7 @@
       "typeVersion": 1,
       "position": [
         960,
-        200
+        180
       ]
     },
     {
@@ -170,7 +157,7 @@
       "type": "n8n-nodes-base.cron",
       "typeVersion": 1,
       "position": [
-        600,
+        420,
         460
       ]
     },
@@ -182,113 +169,20 @@
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        1280,
-        0
+        780,
+        180
       ]
     },
     {
       "parameters": {
-        "authentication": "oAuth2",
-        "operation": "list",
-        "queryFilters": {
-          "mimeType": [
-            {
-              "mimeType": "application/vnd.google-apps.folder"
-            }
-          ],
-          "name": [
-            {
-              "operation": "is",
-              "value": "={{$json[\"year\"]}}"
-            }
-          ]
-        },
-        "options": {
-          "fields": [
-            "id"
-          ]
-        }
+        "workflowId": "6"
       },
-      "name": "Get Year folder",
-      "type": "n8n-nodes-base.googleDrive",
+      "name": "Get GDrive FolderId by Path",
+      "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        1460,
-        0
-      ],
-      "credentials": {
-        "googleDriveOAuth2Api": {
-          "id": "7",
-          "name": "Google Drive account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "authentication": "oAuth2",
-        "operation": "list",
-        "useQueryString": true,
-        "queryString": "='{{$json[\"id\"]}}' in parents and name = '{{$node[\"Current date\"].json[\"month\"]}}'",
-        "options": {
-          "fields": [
-            "id"
-          ]
-        }
-      },
-      "name": "Get Month folder",
-      "type": "n8n-nodes-base.googleDrive",
-      "typeVersion": 1,
-      "position": [
-        1640,
-        0
-      ],
-      "credentials": {
-        "googleDriveOAuth2Api": {
-          "id": "7",
-          "name": "Google Drive account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "keepOnlySet": true,
-        "values": {
-          "string": [
-            {
-              "name": "folderId",
-              "value": "={{$json[\"id\"]}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "name": "Output",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-      "position": [
-        1820,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "keepOnlySet": true,
-        "values": {
-          "string": [
-            {
-              "name": "date",
-              "value": "={{ $json.date || new Date() }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "name": "Settings1",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-      "position": [
-        1100,
-        0
+        1140,
+        180
       ]
     }
   ],
@@ -302,7 +196,7 @@
             "index": 1
           },
           {
-            "node": "Settings",
+            "node": "Current date",
             "type": "main",
             "index": 0
           }
@@ -357,7 +251,7 @@
       "main": [
         [
           {
-            "node": "Settings1",
+            "node": "Get GDrive FolderId by Path",
             "type": "main",
             "index": 0
           }
@@ -379,47 +273,14 @@
       "main": [
         [
           {
-            "node": "Get Year folder",
+            "node": "Settings",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get Year folder": {
-      "main": [
-        [
-          {
-            "node": "Get Month folder",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get Month folder": {
-      "main": [
-        [
-          {
-            "node": "Output",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Settings1": {
-      "main": [
-        [
-          {
-            "node": "Current date",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Output": {
+    "Get GDrive FolderId by Path": {
       "main": [
         [
           {
@@ -432,7 +293,7 @@
     }
   },
   "createdAt": "2022-04-11T17:11:34.040Z",
-  "updatedAt": "2022-04-20T13:30:53.670Z",
+  "updatedAt": "2022-04-21T17:34:43.794Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
