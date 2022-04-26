@@ -1,0 +1,119 @@
+{
+  "id": 20,
+  "name": "Pogodynka (Slack)",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "cityName": "Warsaw",
+        "language": "pl"
+      },
+      "name": "OpenWeatherMap",
+      "type": "n8n-nodes-base.openWeatherMap",
+      "position": [
+        420,
+        300
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "11",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 7,
+              "minute": 30
+            }
+          ]
+        }
+      },
+      "name": "Cron",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        240,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "channel": "n8n",
+        "text": "=Pogoda na dziś:\n\t{{$json[\"weather\"][0][\"description\"]}}\n\t🌡{{$json[\"main\"][\"temp\"]}}°C | 🤒 {{$json[\"main\"][\"feels_like\"]}}°C\n\t_min {{$json[\"main\"][\"temp_min\"]}}°C  〰 {{$json[\"main\"][\"temp_max\"]}}°C max_\n\tciśnienie: {{$json[\"main\"][\"pressure\"]}}hpa\n\twilgotność powietrza: {{$json[\"main\"][\"humidity\"]}}%\n\twiatr: {{$json[\"wind\"][\"speed\"]}}m/s",
+        "attachments": [],
+        "otherOptions": {}
+      },
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ],
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "6",
+          "name": "n8n Slack account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "OpenWeatherMap": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-25T09:28:43.828Z",
+  "updatedAt": "2022-04-25T21:10:40.766Z",
+  "settings": {
+    "timezone": "Europe/Warsaw",
+    "saveExecutionProgress": "DEFAULT"
+  },
+  "staticData": null
+}
