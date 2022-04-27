@@ -44,12 +44,6 @@
               "name": "user",
               "value": "={{$node.SplitInBatches.json.user}}"
             }
-          ],
-          "boolean": [
-            {
-              "name": "settings_removeAfterUpload",
-              "value": true
-            }
           ]
         },
         "options": {}
@@ -90,59 +84,6 @@
     },
     {
       "parameters": {
-        "dataType": "string",
-        "value1": "={{$json.user}}",
-        "rules": {
-          "rules": [
-            {
-              "value2": "Daniel"
-            },
-            {
-              "value2": "Justyna",
-              "output": 1
-            }
-          ]
-        }
-      },
-      "name": "Switch",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 1,
-      "position": [
-        1420,
-        300
-      ],
-      "continueOnFail": true
-    },
-    {
-      "parameters": {
-        "workflowId": "13"
-      },
-      "name": "Upload music to Google Drive D",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1,
-      "position": [
-        1620,
-        280
-      ],
-      "alwaysOutputData": true,
-      "continueOnFail": true
-    },
-    {
-      "parameters": {
-        "workflowId": "19"
-      },
-      "name": "Upload music to Google Drive J",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1,
-      "position": [
-        1620,
-        460
-      ],
-      "alwaysOutputData": true,
-      "continueOnFail": true
-    },
-    {
-      "parameters": {
         "triggerTimes": {
           "item": [
             {
@@ -159,6 +100,20 @@
         520,
         300
       ]
+    },
+    {
+      "parameters": {
+        "workflowId": "13"
+      },
+      "name": "Upload music to Google Drive",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        300
+      ],
+      "alwaysOutputData": true,
+      "continueOnFail": true
     }
   ],
   "connections": {
@@ -188,7 +143,7 @@
       "main": [
         [
           {
-            "node": "Switch",
+            "node": "Upload music to Google Drive",
             "type": "main",
             "index": 0
           }
@@ -217,46 +172,6 @@
         ]
       ]
     },
-    "Switch": {
-      "main": [
-        [
-          {
-            "node": "Upload music to Google Drive D",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Upload music to Google Drive J",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Upload music to Google Drive D": {
-      "main": [
-        [
-          {
-            "node": "SplitInBatches",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Upload music to Google Drive J": {
-      "main": [
-        [
-          {
-            "node": "SplitInBatches",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Every 12h": {
       "main": [
         [
@@ -267,10 +182,24 @@
           }
         ]
       ]
+    },
+    "Upload music to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2022-04-20T21:11:36.981Z",
-  "updatedAt": "2022-04-25T21:17:35.690Z",
-  "settings": {},
+  "updatedAt": "2022-04-26T09:51:38.312Z",
+  "settings": {
+    "timezone": "Europe/Warsaw",
+    "saveExecutionProgress": "DEFAULT"
+  },
   "staticData": null
 }
