@@ -1,0 +1,328 @@
+{
+  "id": 13,
+  "name": "Upload folder to Google Drive",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        280,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "settings_user",
+              "value": "={{ $json['user'] || 'Daniel' }}"
+            },
+            {
+              "name": "settings_googleDriveParent",
+              "value": "={{ $json['settings_googleDriveParent'] || '148Mylq0UZAZ2dRMfnjEJKz1OD4xGK7L7' }}"
+            },
+            {
+              "name": "settings_localFolder",
+              "value": "={{ $json['settings_localFolder'] || '/home/dbarwikowski/.youtube-downloads/Daniel/downloaded' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=rm {{ $json['settings_localFolder'] }}/core\nls -1 {{ $json['settings_localFolder'] }}/*"
+      },
+      "name": "List contents",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ],
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "functionCode": "const getFileName = (fileName) => fileName.split('\\\\').pop().split('/').pop();\nconst newItems = [];\n\nfor (file of items[0].json.stdout.split('\\n')) {\n  newItems.push({\n    json: {\n      filename: getFileName(file),\n      fullpath: file\n    }\n  });\n}\n\nreturn newItems;"
+      },
+      "name": "Parse stdout",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        820,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "filePath": "={{$json[\"fullpath\"]}}"
+      },
+      "name": "Read Binary File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        1180,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "=rm \"{{ $json.name}}\""
+      },
+      "name": "Remove uploaded file",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1900,
+        300
+      ],
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.settings_user }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "Daniel"
+            },
+            {
+              "value2": "Justyna",
+              "output": 1
+            }
+          ]
+        }
+      },
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "settings_googleDriveParent",
+              "value": "={{$node.Settings.json.settings_googleDriveParent}}"
+            },
+            {
+              "name": "settings_filePath",
+              "value": "={{ $json.fullpath }}"
+            },
+            {
+              "name": "settings_binaryProperty",
+              "value": "data"
+            },
+            {
+              "name": "settings_user",
+              "value": "={{$node.Settings.json.settings_user}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "GDrive_Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "22"
+      },
+      "name": "Google Drive Upload (Daniel)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "21"
+      },
+      "name": "Google Drive Upload (Justyna)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        280
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "List contents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List contents": {
+      "main": [
+        [
+          {
+            "node": "Parse stdout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse stdout": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Binary File": {
+      "main": [
+        [
+          {
+            "node": "GDrive_Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove uploaded file": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "Read Binary File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Upload (Daniel)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Drive Upload (Justyna)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Upload (Daniel)": {
+      "main": [
+        [
+          {
+            "node": "Remove uploaded file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Upload (Justyna)": {
+      "main": [
+        [
+          {
+            "node": "Remove uploaded file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GDrive_Settings": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-14T10:55:37.007Z",
+  "updatedAt": "2022-04-26T10:58:14.163Z",
+  "settings": {
+    "timezone": "Europe/Warsaw",
+    "saveExecutionProgress": "DEFAULT"
+  },
+  "staticData": null
+}
