@@ -1,0 +1,98 @@
+{
+  "id": 21,
+  "name": "Google Drive Upload (Justyna)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "settings_googleDriveParent",
+              "value": "={{ $json['settings_googleDriveParent'] }}"
+            },
+            {
+              "name": "settings_filePath",
+              "value": "={{ $json['settings_filePath'] }}"
+            },
+            {
+              "name": "settings_binaryProperty",
+              "value": "={{ $json['settings_binaryProperty'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "binaryData": true,
+        "binaryPropertyName": "={{ $json['settings_binaryProperty'] }}",
+        "name": "={{ $json['settings_filePath'] }}",
+        "parents": [
+          "={{ $json['settings_googleDriveParent'] }}"
+        ],
+        "options": {}
+      },
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "9",
+          "name": "J Google Drive"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-26T08:01:24.319Z",
+  "updatedAt": "2022-04-26T08:53:57.971Z",
+  "settings": {},
+  "staticData": null
+}
