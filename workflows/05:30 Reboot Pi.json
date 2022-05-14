@@ -1,0 +1,79 @@
+{
+  "id": 5,
+  "name": "05:30 Reboot Pi",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        240,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "command": "sudo reboot"
+      },
+      "name": "Reboot Pi",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 5,
+              "minute": 30
+            }
+          ]
+        }
+      },
+      "name": "05:30",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        240,
+        380
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Reboot Pi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "05:30": {
+      "main": [
+        [
+          {
+            "node": "Reboot Pi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-04-12T09:56:02.182Z",
+  "updatedAt": "2022-05-13T08:58:56.144Z",
+  "settings": {
+    "timezone": "Europe/Warsaw",
+    "saveExecutionProgress": "DEFAULT"
+  },
+  "staticData": null
+}
