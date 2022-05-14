@@ -58,7 +58,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const getFileName = (fileName) => fileName.split('\\\\').pop().split('/').pop();\nconst newItems = [];\n\nfor (file of items[0].json.stdout.split('\\n')) {\n  newItems.push({\n    json: {\n      filename: getFileName(file),\n      fullpath: file\n    }\n  });\n}\n\nreturn newItems;"
+        "functionCode": "const getFileName = (fileName) => fileName.split('\\\\').pop().split('/').pop();\nconst newItems = [];\n\nif(!items[0].json.stdout){\n  return newItems;\n}\n\nfor (file of items[0].json.stdout.split('\\n')) {\n  newItems.push({\n    json: {\n      filename: getFileName(file),\n      fullpath: file\n    }\n  });\n}\n\nreturn newItems;"
       },
       "name": "Parse stdout",
       "type": "n8n-nodes-base.function",
@@ -67,8 +67,7 @@
         820,
         300
       ],
-      "alwaysOutputData": false,
-      "continueOnFail": true
+      "alwaysOutputData": false
     },
     {
       "parameters": {
@@ -321,7 +320,7 @@
     }
   },
   "createdAt": "2022-04-14T10:55:37.007Z",
-  "updatedAt": "2022-05-12T14:16:32.003Z",
+  "updatedAt": "2022-05-13T08:46:51.612Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
