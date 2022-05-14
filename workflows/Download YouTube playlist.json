@@ -84,25 +84,6 @@
     },
     {
       "parameters": {
-        "triggerTimes": {
-          "item": [
-            {
-              "mode": "everyX",
-              "value": 12
-            }
-          ]
-        }
-      },
-      "name": "Every 12h",
-      "type": "n8n-nodes-base.cron",
-      "typeVersion": 1,
-      "position": [
-        520,
-        300
-      ]
-    },
-    {
-      "parameters": {
         "workflowId": "13"
       },
       "name": "Upload music to Google Drive",
@@ -114,6 +95,24 @@
       ],
       "alwaysOutputData": true,
       "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 1
+            }
+          ]
+        }
+      },
+      "name": "01:00",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        520,
+        300
+      ]
     }
   ],
   "connections": {
@@ -172,17 +171,6 @@
         ]
       ]
     },
-    "Every 12h": {
-      "main": [
-        [
-          {
-            "node": "Function",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Upload music to Google Drive": {
       "main": [
         [
@@ -193,10 +181,21 @@
           }
         ]
       ]
+    },
+    "01:00": {
+      "main": [
+        [
+          {
+            "node": "Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2022-04-20T21:11:36.981Z",
-  "updatedAt": "2022-04-26T09:51:38.312Z",
+  "updatedAt": "2022-05-13T09:16:35.730Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
