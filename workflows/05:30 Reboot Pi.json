@@ -21,8 +21,8 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        460,
-        300
+        440,
+        220
       ]
     },
     {
@@ -70,7 +70,7 @@
     }
   },
   "createdAt": "2022-04-12T09:56:02.182Z",
-  "updatedAt": "2022-05-13T08:58:56.144Z",
+  "updatedAt": "2022-05-17T09:04:07.394Z",
   "settings": {
     "timezone": "Europe/Warsaw",
     "saveExecutionProgress": "DEFAULT"
